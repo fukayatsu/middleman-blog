@@ -13,7 +13,8 @@ module Middleman
       # @param [String] tag
       # @return [String]
       def link(tag)
-        @blog_options.taglink.sub(':tag', tag.parameterize)
+        # fallback: '日本語'.parameterize #=> ''
+        @blog_options.taglink.sub(':tag', tag.parameterize.presence || tag)
       end
 
       # Update the main sitemap resource list
