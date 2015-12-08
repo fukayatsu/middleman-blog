@@ -78,8 +78,12 @@ module Middleman
         @_articles.each do |article|
           category = article.category
           category = 'no_category' if category.blank? || category == '/'
-          categories[category] ||= []
-          categories[category] << article
+          paths = category.split('/')
+          paths.size.times.map do |i|
+            cat = paths[0..i].join('/')
+            categories[cat] ||= []
+            categories[cat] << article
+          end
         end
 
         # Sort each category's list of articles
