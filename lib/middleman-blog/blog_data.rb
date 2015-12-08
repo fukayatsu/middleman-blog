@@ -70,6 +70,26 @@ module Middleman
         tags
       end
 
+      # Returns a map from category name to an array
+      # of BlogArticles associated with that category.
+      # @return [Hash<String, Array<Middleman::Sitemap::Resource>>]
+      def categories
+        categories = {}
+        @_articles.each do |article|
+          category = article.category
+          category = 'no_category' if category.blank? || category == '/'
+          categories[category] ||= []
+          categories[category] << article
+        end
+
+        # Sort each category's list of articles
+        categories.each do |category, articles|
+          categories[category] = articles.sort_by(&:date).reverse
+        end
+
+        categories
+      end
+
       # Updates' blog articles destination paths to be the
       # permalink.
       # @return [void]

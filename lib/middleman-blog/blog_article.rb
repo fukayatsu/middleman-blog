@@ -129,6 +129,12 @@ module Middleman
         end
       end
 
+      # A category for this article, set from frontmatter.
+      # @return String (never +nil+)
+      def category
+        data["category"]
+      end
+
       # The language of the article. The language can be present in the
       # frontmatter or in the source path. If both are present, they
       # must match. If neither specifies a lang, I18n's default_locale will
