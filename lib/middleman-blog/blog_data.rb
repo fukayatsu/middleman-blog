@@ -86,6 +86,7 @@ module Middleman
 
           if (params = extract_params(@source_template, resource.path))
             article = convert_to_article(resource)
+            next unless article.date
             next unless publishable?(article)
 
             # Add extra parameters from the URL to the page metadata

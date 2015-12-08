@@ -159,7 +159,8 @@ module Middleman
       def date
         return @_date if @_date
 
-        frontmatter_date = data['date']
+        frontmatter_date = data['date'] || data['updated_at'] || data['created_at']
+        return nil unless frontmatter_date
 
         # First get the date from frontmatter
         if frontmatter_date.is_a? Time
@@ -167,24 +168,6 @@ module Middleman
         else
           @_date = Time.zone.parse(frontmatter_date.to_s)
         end
-
-        # Next figure out the date from the filename
-        source_vars = blog_data.source_template.variables
-        if source_vars.include?('year') &&
-           source_vars.include?('month') &&
-           source_vars.include?('day')
-
-          filename_date = Time.zone.local(path_part('year').to_i, path_part('month').to_i, path_part('day').to_i)
-          if @_date
-            raise "The date in #{path}'s filename doesn't match the date in its frontmatter" unless @_date.to_date == filename_date.to_date
-          else
-            @_date = filename_date.to_time.in_time_zone
-          end
-        end
-
-        raise "Blog post #{path} needs a date in its filename or frontmatter" unless @_date
-
-        @_date
       end
 
       # The "slug" of the article that shows up in its URL. The article slug
