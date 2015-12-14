@@ -27,6 +27,9 @@ module Middleman
         # A list of resources corresponding to blog articles
         @_articles = []
 
+        # A list of categories
+        @_categories = []
+
         @source_template = uri_template options.sources
         @permalink_template = uri_template options.permalink
         @subdir_template = uri_template options.sources.sub(/\.[^.]+$/, "/{+path}")
@@ -74,24 +77,35 @@ module Middleman
       # of BlogArticles associated with that category.
       # @return [Hash<String, Array<Middleman::Sitemap::Resource>>]
       def categories
-        categories = {}
+        return @_categories unless @_categories.empty?
+        @_categories = {}
         @_articles.each do |article|
           category = article.category
           category = 'no_category' if category.blank? || category == '/'
           paths = category.split('/')
           paths.size.times.map do |i|
             cat = paths[0..i].join('/')
-            categories[cat] ||= []
-            categories[cat] << article
+            @_categories[cat] ||= []
+            @_categories[cat] << article
           end
         end
 
         # Sort each category's list of articles
-        categories.each do |category, articles|
-          categories[category] = articles.sort_by(&:date).reverse
+        @_categories.each do |category, articles|
+          @_categories[category] = articles.sort_by(&:date).reverse
         end
 
-        categories
+        @_categories
+      end
+
+      def root_categories
+        categories.select { |category, _articles| !category.include?('/') }
+      end
+
+      def child_categories_for(parent)
+        categories.select do |category, _articles|
+          category.match(%r{^#{parent}/[^/]+$})
+        end
       end
 
       # Updates' blog articles destination paths to be the
