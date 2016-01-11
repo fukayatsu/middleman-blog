@@ -86,6 +86,14 @@ module Middleman
         build_url blog_controller(blog_name).tag_pages.link(tag)
       end
 
+      # Get a path to the given category page, based on the +categorylink+ blog setting.
+      # @param [String] category
+      # @param [Symbol, String] blog_name Optional name of the blog to use.
+      # @return [String]
+      def category_path(category, blog_name=nil)
+        build_url blog_controller(blog_name).category_pages.link(category)
+      end
+
       # Get a path to the given year-based calendar page, based on the +year_link+ blog setting.
       # @param [Number] year
       # @param [Symbol, String] blog_name Optional name of the blog to use.
@@ -130,7 +138,7 @@ module Middleman
         # "articles" local variable is populated by Calendar and Tag page generators
         # If it's not set then use the complete list of articles
         articles = meta[:locals]["articles"] || blog(blog_name).articles
-        
+
         limit ? articles.first(limit) : articles
       end
 

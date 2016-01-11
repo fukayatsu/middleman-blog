@@ -70,6 +70,41 @@ module Middleman
         tags
       end
 
+      # Returns a map from category name to an array
+      # of BlogArticles associated with that category.
+      # @return [Hash<String, Array<Middleman::Sitemap::Resource>>]
+      def categories
+        return @_categories if @_categories
+        @_categories = {}
+        @_articles.each do |article|
+          category = article.category
+          category = 'no_category' if category.blank? || category == '/'
+          paths = category.split('/')
+          paths.size.times.map do |i|
+            cat = paths[0..i].join('/')
+            @_categories[cat] ||= []
+            @_categories[cat] << article
+          end
+        end
+
+        # Sort each category's list of articles
+        @_categories.each do |category, articles|
+          @_categories[category] = articles.sort_by(&:date).reverse
+        end
+
+        @_categories
+      end
+
+      def root_categories
+        categories.select { |category, _articles| !category.include?('/') }
+      end
+
+      def child_categories_for(parent)
+        categories.select do |category, _articles|
+          category.match(%r{^#{parent}/[^/]+$})
+        end
+      end
+
       # Updates' blog articles destination paths to be the
       # permalink.
       # @return [void]
@@ -137,6 +172,7 @@ module Middleman
       # @param [BlogArticle] article A blog article
       # @return [Boolean] whether it should be published
       def publishable?(article)
+        return false unless article.date
         @app.environment == :development || article.published?
       end
 
